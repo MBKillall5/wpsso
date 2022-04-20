@@ -1,3 +1,6 @@
 [submodule "cos80029-server-setup-scripts"]
 	path = cos80029-server-setup-scripts
 	url = git@github.com:montypanday/cos80029-server-setup-scripts.git
+[submodule "keycloak-extension-playground"]
+	path = keycloak-extension-playground
+	url = https://github.com/thomasdarimont/keycloak-extension-playground
