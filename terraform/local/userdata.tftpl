@@ -1,0 +1,25 @@
+#cloud-config
+user-data:
+    hostname: ubuntu-server
+    users:
+      - name: dustin
+        lock_passwd: true
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDXpamVx5Tn5St3dzvu+FMt60rczWNTHivsAwGA7vu6evtqQDjcS7EEZIB/5CB/PdJ1xkVKVXRIwsmkYkqbLhA/zS83LlB1pu1SfhYQnrbx9dMXDnvJdzC/bC//oa7h14T8FX9Z0nz9pnXqVeKyKE1GLxEMMBjSJZgRHA9NaXPNcZcln97faK/XG6y/m25t3A66PSCh8sCTmM87aUgIx+8LqneLJVOzth5Bn9E3jaxY4rRHyrGrid7MNfasvvMfHpcuCcCwlsnoYMYvKpZIYN/YEtfLvlAG54AzKAk9NEupuJkhMOnry5OxTXt2OcXiB6xmCpnKV1SKFu3zkX/ZRwp5B5LzpC/gvamO7z5e2yoJnnZCVGdGCkGbPCHa90GHxK4r3+mqjR72aqzHjfGUJdANI6EkUjIcMybCph4zPkGky+8y9Mcl6YM0jPDewPViunOg1/ogANNXBBeUW0lwr4Jhezn6dOC4HJVFXjZUdjKzIjBCdjf8nzclam7eifvjykE= User@DESKTOP-BLACKBOX
+        sudo: ALL=(ALL) NOPASSWD:ALL
+#  ssh:
+#    install-server: true
+#   network:
+#     network:
+#       version: 2
+#       ethernets:
+#         enwild:
+#           match:
+#             name: en*
+#           addresses:
+#             - 192.168.0.137/24
+#           dhcp4: false
+#           gateway4: 192.168.0.1
+#           nameservers:
+#             addresses:
+#               - 192.168.0.1

@@ -36,6 +36,11 @@ public class WordpressUser {
         this.createdTimestamp = System.currentTimeMillis();
     }
 
+    
+    /** 
+     * @param name
+     * @return List<String>
+     */
     public List<String> getAttribute(String name) {
         return attributes.getOrDefault(name, Collections.emptyList());
     }

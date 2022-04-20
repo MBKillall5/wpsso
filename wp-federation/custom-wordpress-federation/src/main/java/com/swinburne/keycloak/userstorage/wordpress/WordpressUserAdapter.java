@@ -26,6 +26,10 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
         this.keycloakId = StorageId.keycloakId(model, wpUser.getId());
     }
 
+    
+    /** 
+     * @return UserFederatedStorageProvider
+     */
     @Override
     public UserFederatedStorageProvider getFederatedStorage() {
         // internal JPA user storage in keycloak.
@@ -33,71 +37,127 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
         return super.getFederatedStorage();
     }
 
+    
+    /** 
+     * @return WordpressUserStorageProvider
+     */
     protected WordpressUserStorageProvider getExternalUserStorageProvider() {
         // external user storage provider
         return session.getProvider(WordpressUserStorageProvider.class, this.storageProviderModel);
     }
 
+    
+    /** 
+     * @return String
+     */
     @Override
     public String getId() {
         return keycloakId;
     }
 
+    
+    /** 
+     * @return String
+     */
     @Override
     public String getUsername() {
         return wpUser.getUsername();
     }
 
+    
+    /** 
+     * @param username
+     */
     @Override
     public void setUsername(String username) {
         wpUser.setUsername(username);
     }
 
+    
+    /** 
+     * @return String
+     */
     @Override
     public String getEmail() {
         return wpUser.getEmail();
     }
 
+    
+    /** 
+     * @param email
+     */
     @Override
     public void setEmail(String email) {
         wpUser.setEmail(email);
     }
 
+    
+    /** 
+     * @return String
+     */
     @Override
     public String getFirstName() {
         return wpUser.getFirstName();
     }
 
+    
+    /** 
+     * @param firstName
+     */
     @Override
     public void setFirstName(String firstName) {
         wpUser.setFirstName(firstName);
     }
 
+    
+    /** 
+     * @return String
+     */
     @Override
     public String getLastName() {
         return wpUser.getLastName();
     }
 
+    
+    /** 
+     * @param lastName
+     */
     @Override
     public void setLastName(String lastName) {
         wpUser.setLastName(lastName);
     }
 
+    
+    /** 
+     * @return Long
+     */
     @Override
     public Long getCreatedTimestamp() {
         return wpUser.getCreatedTimestamp();
     }
 
+    
+    /** 
+     * @param timestamp
+     */
     @Override
     public void setCreatedTimestamp(Long timestamp) {
         //NOOP
     }
 
+    
+    /** 
+     * @return boolean
+     */
     @Override
     public boolean isEnabled() {
         return wpUser.isEnabled();
     }
 
+    
+    /** 
+     * @return boolean
+     */
     @Override
     public boolean isEmailVerified() {
 
@@ -105,39 +165,70 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
         return true;
     }
 
+    
+    /** 
+     * @param verified
+     */
     @Override
     public void setEmailVerified(boolean verified) {
         // NOOP
     }
 
+    
+    /** 
+     * @param enabled
+     */
     @Override
     public void setEnabled(boolean enabled) {
         // super.setEnabled(enabled);
     }
 
+    
+    /** 
+     * @return Map<String, List<String>>
+     */
     @Override
     public Map<String, List<String>> getAttributes() {
         MultivaluedHashMap<String, String> attributes = new MultivaluedHashMap<>(wpUser.getAttributes());
         return attributes;
     }
 
+    
+    /** 
+     * @param name
+     * @param values
+     */
     @Override
     public void setAttribute(String name, List<String> values) {
 //        super.setAttribute(name, values);
         // NOOP
     }
 
+    
+    /** 
+     * @param name
+     * @param value
+     */
     @Override
     public void setSingleAttribute(String name, String value) {
 //        super.setSingleAttribute(name, value);
         // NOOP
     }
 
+    
+    /** 
+     * @param name
+     * @return List<String>
+     */
     @Override
     public List<String> getAttribute(String name) {
         return wpUser.getAttribute(name);
     }
 
+    
+    /** 
+     * @return Set<RoleModel>
+     */
     @Override
     public Set<RoleModel> getRoleMappings() {
 
@@ -155,12 +246,21 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
         return roleMappings;
     }
 
+    
+    /** 
+     * @return Set<RoleModel>
+     */
     @Override
     public Set<RoleModel> getRealmRoleMappings() {
         // delegates to getRoleMappings
         return super.getRealmRoleMappings();
     }
 
+    
+    /** 
+     * @param app
+     * @return Set<RoleModel>
+     */
     @Override
     public Set<RoleModel> getClientRoleMappings(ClientModel app) {
         // delegates to getRoleMappings

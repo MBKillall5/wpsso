@@ -61,16 +61,35 @@ public class WordpressUserStorageProvider implements
         this.repository = repository;
     }
 
+    
+    /** 
+     * @param credentialType
+     * @return boolean
+     */
     @Override
     public boolean supportsCredentialType(String credentialType) {
         return PasswordCredentialModel.TYPE.equals(credentialType);
     }
 
+    
+    /** 
+     * @param realm
+     * @param user
+     * @param credentialType
+     * @return boolean
+     */
     @Override
     public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
         return supportsCredentialType(credentialType);
     }
 
+    
+    /** 
+     * @param realm
+     * @param user
+     * @param input
+     * @return boolean
+     */
     @Override
     public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
 
@@ -82,8 +101,17 @@ public class WordpressUserStorageProvider implements
 
         UserCredentialModel cred = (UserCredentialModel) input;
         return repository.validateCredentials(user.getUsername(), cred.getValue());
+
+        //@mb here we can store the new credential
     }
 
+    
+    /** 
+     * @param realm
+     * @param user
+     * @param input
+     * @return boolean
+     */
     @Override
     public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
 
@@ -95,31 +123,58 @@ public class WordpressUserStorageProvider implements
 
         UserCredentialModel cred = (UserCredentialModel) input;
         // session.getProvider(PasswordPolicyManagerProvider.class).validate(realm, user, cred.getValue());
+        // @mb or session.userCredentialManager().updateCredential(realm, localUser, UserCredentialModel.password(credentialInput.getChallengeResponse(), false));
         return repository.updateCredentials(user.getUsername(), cred.getValue());
     }
 
+    
+    /** 
+     * @param realm
+     * @param user
+     * @param credentialType
+     */
     @Override
     public void disableCredentialType(RealmModel realm, UserModel user, String credentialType) {
         log.infov("disable credential type: realm={0} user={1} credentialType={2}", realm.getId(), user.getUsername(), credentialType);
     }
 
+    
+    /** 
+     * @param realm
+     * @param user
+     * @return Set<String>
+     */
     @Override
     public Set<String> getDisableableCredentialTypes(RealmModel realm, UserModel user) {
         return Collections.emptySet();
     }
 
+    
+    /** 
+     * @param realm
+     */
     @Override
     public void preRemove(RealmModel realm) {
 
         log.infov("pre-remove realm");
     }
 
+    
+    /** 
+     * @param realm
+     * @param group
+     */
     @Override
     public void preRemove(RealmModel realm, GroupModel group) {
 
         log.infov("pre-remove group");
     }
 
+    
+    /** 
+     * @param realm
+     * @param role
+     */
     @Override
     public void preRemove(RealmModel realm, RoleModel role) {
 
@@ -131,6 +186,12 @@ public class WordpressUserStorageProvider implements
         log.infov("closing");
     }
 
+    
+    /** 
+     * @param id
+     * @param realm
+     * @return UserModel
+     */
     @Override
     public UserModel getUserById(String id, RealmModel realm) {
 
@@ -140,6 +201,10 @@ public class WordpressUserStorageProvider implements
         return createAdapter(realm, repository.findUserById(externalId));
     }
 
+
+/** 
+ * @return UserModel
+ */
 //    @Override
 //    public UserModel getUserByUsername(RealmModel realm, String username) {
 //        return UserLookupProvider.super.getUserByUsername(realm, username);
@@ -152,6 +217,12 @@ public class WordpressUserStorageProvider implements
         return createAdapter(realm, repository.findUserByUsernameOrEmail(username));
     }
 
+    
+    /** 
+     * @param realm
+     * @param wpUser
+     * @return UserModel
+     */
     protected UserModel createAdapter(RealmModel realm, WordpressUser wpUser) {
 
         if (wpUser == null) {
@@ -162,6 +233,12 @@ public class WordpressUserStorageProvider implements
         return wpUserAdapter;
     }
 
+    
+    /** 
+     * @param email
+     * @param realm
+     * @return UserModel
+     */
     @Override
     public UserModel getUserByEmail(String email, RealmModel realm) {
 
@@ -170,11 +247,21 @@ public class WordpressUserStorageProvider implements
         return getUserByUsername(email, realm);
     }
 
+    
+    /** 
+     * @param realm
+     * @return int
+     */
     @Override
     public int getUsersCount(RealmModel realm) {
         return repository.getUsersCount();
     }
 
+    
+    /** 
+     * @param realm
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> getUsers(RealmModel realm) {
 
@@ -185,6 +272,13 @@ public class WordpressUserStorageProvider implements
                 .collect(Collectors.toList());
     }
 
+    
+    /** 
+     * @param realm
+     * @param firstResult
+     * @param maxResults
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> getUsers(RealmModel realm, int firstResult, int maxResults) {
 
@@ -193,6 +287,12 @@ public class WordpressUserStorageProvider implements
         return getUsers(realm);
     }
 
+    
+    /** 
+     * @param search
+     * @param realm
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> searchForUser(String search, RealmModel realm) {
 
@@ -201,6 +301,14 @@ public class WordpressUserStorageProvider implements
         return searchForUser(search, realm, 0, -1);
     }
 
+    
+    /** 
+     * @param search
+     * @param realm
+     * @param firstResult
+     * @param maxResults
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> searchForUser(String search, RealmModel realm, int firstResult, int maxResults) {
 
@@ -220,6 +328,12 @@ public class WordpressUserStorageProvider implements
                 .collect(Collectors.toList());
     }
 
+    
+    /** 
+     * @param params
+     * @param realm
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm) {
 
@@ -228,6 +342,14 @@ public class WordpressUserStorageProvider implements
         return searchForUser(params, realm, 0, -1);
     }
 
+    
+    /** 
+     * @param params
+     * @param realm
+     * @param firstResult
+     * @param maxResults
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> searchForUser(Map<String, String> params, RealmModel realm, int firstResult, int maxResults) {
 
@@ -238,6 +360,12 @@ public class WordpressUserStorageProvider implements
         return searchForUser("", realm);
     }
 
+    
+    /** 
+     * @param realm
+     * @param group
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group) {
 
@@ -246,6 +374,14 @@ public class WordpressUserStorageProvider implements
         return getGroupMembers(realm, group, 0, -1);
     }
 
+    
+    /** 
+     * @param realm
+     * @param group
+     * @param firstResult
+     * @param maxResults
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group, int firstResult, int maxResults) {
 
@@ -254,6 +390,13 @@ public class WordpressUserStorageProvider implements
         return Collections.emptyList();
     }
 
+    
+    /** 
+     * @param attrName
+     * @param attrValue
+     * @param realm
+     * @return List<UserModel>
+     */
     @Override
     public List<UserModel> searchForUserByUserAttribute(String attrName, String attrValue, RealmModel realm) {
 
@@ -264,12 +407,24 @@ public class WordpressUserStorageProvider implements
                 .collect(Collectors.toList());
     }
 
+    
+    /** 
+     * @param realm
+     * @param userId
+     * @param role
+     */
     /* UserRoleMappingsFederatedStorage start */
     @Override
     public void grantRole(RealmModel realm, String userId, RoleModel role) {
         log.infov("grant role mapping: realm={0} userId={1} role={2}", realm.getId(), userId, role.getName());
     }
 
+    
+    /** 
+     * @param realm
+     * @param userId
+     * @return Set<RoleModel>
+     */
     @Override
     public Set<RoleModel> getRoleMappings(RealmModel realm, String userId) {
         log.infov("get role mappings: realm={0} userId={1}", realm.getId(), userId);
@@ -298,11 +453,24 @@ public class WordpressUserStorageProvider implements
         return externalRoles;
     }
 
+    
+    /** 
+     * @param realm
+     * @param userId
+     * @param role
+     */
     @Override
     public void deleteRoleMapping(RealmModel realm, String userId, RoleModel role) {
         log.infov("delete role mapping: realm={0} userId={1} role={2}", realm.getId(), userId, role.getName());
     }
 
+    
+    /** 
+     * @param realm
+     * @param userId
+     * @param name
+     * @param value
+     */
     /* UserRoleMappingsFederatedStorage end */
 
     @Override
@@ -310,16 +478,35 @@ public class WordpressUserStorageProvider implements
         log.infov("set single attribute: realm={0} userId={1} name={2} value={3}", realm.getId(), userId, name, value);
     }
 
+    
+    /** 
+     * @param realm
+     * @param userId
+     * @param name
+     * @param values
+     */
     @Override
     public void setAttribute(RealmModel realm, String userId, String name, List<String> values) {
         log.infov("set attribute: realm={0} userId={1} name={2} value={3}", realm.getId(), userId, name, values);
     }
 
+    
+    /** 
+     * @param realm
+     * @param userId
+     * @param name
+     */
     @Override
     public void removeAttribute(RealmModel realm, String userId, String name) {
         log.infov("remove attribute: realm={0} userId={1} name={2}", realm.getId(), userId, name);
     }
 
+    
+    /** 
+     * @param realm
+     * @param userId
+     * @return MultivaluedHashMap<String, String>
+     */
     @Override
     public MultivaluedHashMap<String, String> getAttributes(RealmModel realm, String userId) {
 
@@ -331,6 +518,13 @@ public class WordpressUserStorageProvider implements
         return new MultivaluedHashMap<>(wpUser.getAttributes());
     }
 
+    
+    /** 
+     * @param realm
+     * @param name
+     * @param value
+     * @return List<String>
+     */
     @Override
     public List<String> getUsersByUserAttribute(RealmModel realm, String name, String value) {
 
@@ -339,13 +533,8 @@ public class WordpressUserStorageProvider implements
         return repository.findUsersByAttribute(name, value, 0, -1);
     }
 
-//    @Override
-//    public void onCache(RealmModel realm, CachedUserModel user, UserModel delegate) {
-//
-//        user.getDelegateForUpdate();
-//
-//        log.infov("on cache: realm={0} username={1}", realm.getId(), user.getUsername());
-//    }
+
+
 
     @Override
     public UserModel addUser(RealmModel realm, String username) {
@@ -356,6 +545,12 @@ public class WordpressUserStorageProvider implements
         return null;
     }
 
+    
+    /** 
+     * @param realm
+     * @param user
+     * @return boolean
+     */
     @Override
     public boolean removeUser(RealmModel realm, UserModel user) {
 

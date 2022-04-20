@@ -6,6 +6,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * The main interaction with the WP REST API
+ */
 class WordpressUserRepository {
 
     public static final WordpressRole wp_ADMIN_ROLE = new WordpressRole("1", "wp-admin", "wp Admin Role");
@@ -40,24 +43,49 @@ class WordpressUserRepository {
         );
     }
 
+    
+    /** 
+     * @return List<WordpressUser>
+     */
     public List<WordpressUser> getAllUsers() {
         return wpUsers;
     }
 
+    
+    /** 
+     * @return int
+     */
     public int getUsersCount() {
         return wpUsers.size();
     }
 
+    
+    /** 
+     * @param id
+     * @return WordpressUser
+     */
     public WordpressUser findUserById(String id) {
         return wpUsers.stream().filter(wpUser -> wpUser.getId().equals(id)).findFirst().orElse(null);
     }
 
+    
+    /** 
+     * @param username
+     * @return WordpressUser
+     */
     public WordpressUser findUserByUsernameOrEmail(String username) {
         return wpUsers.stream()
                 .filter(wpUser -> wpUser.getUsername().equalsIgnoreCase(username) || wpUser.getEmail().equalsIgnoreCase(username))
                 .findFirst().orElse(null);
     }
 
+    
+    /** 
+     * @param query
+     * @param firstResult
+     * @param maxResult
+     * @return List<WordpressUser>
+     */
     public List<WordpressUser> findUsers(String query, int firstResult, int maxResult) {
         return paginated(wpUsers.stream()
                 .filter(wpUser -> wpUser.getUsername().contains(query)
@@ -67,16 +95,33 @@ class WordpressUserRepository {
                 .collect(Collectors.toList());
     }
 
+    
+    /** 
+     * @param username
+     * @param password
+     * @return boolean
+     */
     public boolean validateCredentials(String username, String password) {
         WordpressUser user = findUserByUsernameOrEmail(username);
         return user.getPassword().equals(password);
     }
 
+    
+    /** 
+     * @param username
+     * @param password
+     * @return boolean
+     */
     public boolean updateCredentials(String username, String password) {
         findUserByUsernameOrEmail(username).setPassword(password);
         return true;
     }
 
+    
+    /** 
+     * @param username
+     * @return Set<WordpressRole>
+     */
     public Set<WordpressRole> getRoles(String username) {
 
         WordpressUser user = findUserByUsernameOrEmail(username);
@@ -84,14 +129,33 @@ class WordpressUserRepository {
     }
 
 
+    
+    /** 
+     * @param userId
+     * @return Set<WordpressRole>
+     */
     public Set<WordpressRole> getGlobalRolesByUserId(String userId) {
         return userRoles.get(userId);
     }
 
+    
+    /** 
+     * @param clientId
+     * @param userId
+     * @return Set<WordpressRole>
+     */
     public Set<WordpressRole> getClientRolesByUserId(String clientId, String userId) {
         return userRoles.get(clientId + ":" + userId);
     }
 
+    
+    /** 
+     * @param name
+     * @param value
+     * @param firstResult
+     * @param maxResult
+     * @return List<String>
+     */
     public List<String> findUsersByAttribute(String name, String value, int firstResult, int maxResult) {
         return paginated(wpUsers.stream()
                 .filter(u -> u.getAttribute(name).contains(value))
@@ -99,6 +163,13 @@ class WordpressUserRepository {
                 .collect(Collectors.toList());
     }
 
+    
+    /** 
+     * @param stream
+     * @param firstResult
+     * @param maxResult
+     * @return Stream<T>
+     */
     protected <T> Stream<T> paginated(Stream<T> stream, int firstResult, int maxResult) {
 
         Stream result = stream.skip(firstResult);
