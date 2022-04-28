@@ -13,7 +13,6 @@ class WordpressUserRepository {
 
     public static final WordpressRole wp_ADMIN_ROLE = new WordpressRole("1", "wp-admin", "wp Admin Role");
     public static final WordpressRole wp_USER_ROLE = new WordpressRole("2", "wp-user", "wp User Role");
-    public static final WordpressRole wp_CLIENT_ROLE_TEST_CLIENT_MANAGER = new WordpressRole("1001", "wp-test-client-manager", "wp Test Client Manager Role");
 
     private final List<WordpressUser> wpUsers;
 
@@ -36,10 +35,7 @@ class WordpressUserRepository {
                 Map.entry("1", Set.of(wp_ADMIN_ROLE, wp_USER_ROLE)),
                 Map.entry("2", Set.of(wp_ADMIN_ROLE, wp_USER_ROLE)),
                 Map.entry("3", Set.of(wp_USER_ROLE)),
-                Map.entry("4", Set.of(wp_USER_ROLE)),
-
-                // client user roles
-                Map.entry("test-client:1", Set.of(wp_CLIENT_ROLE_TEST_CLIENT_MANAGER))
+                Map.entry("4", Set.of(wp_USER_ROLE))
         );
     }
 

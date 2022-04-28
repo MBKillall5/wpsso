@@ -1,4 +1,4 @@
-package com.github.thomasdarimont.keycloak.federation.client;
+package com.swinburne.keycloak.userstorage.client;
 
 import org.keycloak.OAuth2Constants;
 import org.keycloak.jose.jwk.JSONWebKeySet;
@@ -26,6 +26,4 @@ public interface WordpressRestClient {
                                  @FormParam(OAuth2Constants.SCOPE) String scope, //
                                  @FormParam(OAuth2Constants.GRANT_TYPE) String grantType //
     );
-
- 
 }
