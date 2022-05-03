@@ -1,11 +1,36 @@
 package com.swinburne.keycloak.userstorage.wordpress.client.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL) 
 public class AccessTokenResponse {
     private String code;
     private String message;
+
     private Data data;
     private int statusCode;
     private boolean success;
+
+    public AccessTokenResponse() {
+        super();
+
+    }
+
+    public AccessTokenResponse(String code, String message, Data data, int statusCode, boolean success) {
+		this.code = code;
+		this.message = message;
+		this.data = data;
+		this.statusCode = statusCode;
+		this.success = success;
+	}
+
+	@Override
+    public String toString() {
+        return "AccessTokenResponse [code=" + code + ", data=" + data + ", message=" + message + ", statusCode="
+                + statusCode + ", success=" + success + "]";
+    }
 
     public String getCode() {
         return code;
@@ -47,21 +72,26 @@ public class AccessTokenResponse {
         this.success = success;
     }
 
-
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL) 
     static public class Data {
         private String displayName;
         private String email;
-        private String firstname;
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+        private String firstName;
         private int id;
         private String lastName;
         private String nicename;
         private String token;
         
-        public Data(String displayName, String email, String firstname, int id, String lastName, String nicename,
+        public Data(){
+            super();
+        }
+
+        public Data(String displayName, String email, String firstName, int id, String lastName, String nicename,
                 String token) {
             this.displayName = displayName;
             this.email = email;
-            this.firstname = firstname;
+            this.firstName = firstName;
             this.id = id;
             this.lastName = lastName;
             this.nicename = nicename;
@@ -80,10 +110,10 @@ public class AccessTokenResponse {
             this.email = email;
         }
         public String getFirstname() {
-            return firstname;
+            return firstName;
         }
-        public void setFirstname(String firstname) {
-            this.firstname = firstname;
+        public void setFirstname(String firstName) {
+            this.firstName = firstName;
         }
         public int getId() {
             return id;

@@ -63,19 +63,14 @@ public class WordpressUserStorageProvider implements
     private final ComponentModel storageComponentModel;
     private final WordpressUserRepository repository;
     
-    private final ConcurrentMap<String, WordpressUserRepository> remoteKeycloakProviderCache;
-    private final Function<ComponentModel, ResteasyClient> clientFactory;
 
     public WordpressUserStorageProvider(KeycloakSession session,
             ComponentModel storageComponentModel,
-            ConcurrentMap<String, WordpressUserRepository> remoteKeycloakProviderCache,
-            Function<ComponentModel, ResteasyClient> clientFactory,
             WordpressUserRepository repository) {
 
         this.session = session;
         this.storageComponentModel = storageComponentModel;
-        this.remoteKeycloakProviderCache = remoteKeycloakProviderCache;
-        this.clientFactory = clientFactory;
+        this.repository = repository;
     }
 
     
@@ -576,27 +571,5 @@ public class WordpressUserStorageProvider implements
         // this is not supported
         return false;
     }
-
-    /**
-     * Gets the RemoteKeycloakClient
-     * @mb
-     * return RemoteKeycloakClientProvider
-     */
-    protected WpClientProvider getRemoteKeycloakProvider() {
-        return remoteKeycloakProviderCache.computeIfAbsent(storageComponentModel.getId(), storageProviderId -> createKeycloakFacadeProvider(clientFactory));
-    }
-
-    protected WpClientProvider createKeycloakFacadeProvider(Function<ComponentModel, ResteasyClient> clientFactory) {
-        return new WpClientProvider(storageComponentModel, clientFactory);
-    }
     
-    /**
-     * Gets the RemoteKeycloakClient
-     * @mb
-     * return RemoteKeycloakClient
-     */
-    private WpRestKeycloakClient getRemoteKeycloak() {
-        return getRemoteKeycloakProvider().getRemoteKeycloakClient();
-    }
-
 }

@@ -1,5 +1,6 @@
 package com.swinburne.keycloak.userstorage.wordpress;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,46 +9,48 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.swinburne.keycloak.userstorage.wordpress.client.RestExceptionMapper;
+import com.swinburne.keycloak.userstorage.wordpress.client.WpClientProvider;
+import com.swinburne.keycloak.userstorage.wordpress.client.WpRestKeycloakClient;
+
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+
+import lombok.extern.jbosslog.JBossLog;
+
 /**
  * The main interaction with the WP REST API
  */
-class WordpressUserRepository {
+@JBossLog
+ class WordpressUserRepository {
 
-    public static final WordpressRole wp_ADMIN_ROLE = new WordpressRole("1", "wp-admin", "wp Admin Role");
-    public static final WordpressRole wp_USER_ROLE = new WordpressRole("2", "wp-user", "wp User Role");
+    //public static final WordpressRole wp_ADMIN_ROLE = new WordpressRole("1", "wp-admin", "wp Admin Role");
+    //public static final WordpressRole wp_USER_ROLE = new WordpressRole("2", "wp-user", "wp User Role");
 
-    private final List<WordpressUser> wpUsers;
-
-    private final Map<String, Set<WordpressRole>> userRoles;
-
-    private final ConcurrentMap<String, WordpressUserRepository> remoteKeycloakClientCache = new ConcurrentHashMap<>();
+    private  List<WordpressUser> wpUsers;
+    private  Map<String, Set<WordpressRole>> userRoles;
     
-    public WordpressUserRepository() {
-        wpUsers = List.of(
-                new WordpressUser("1", "user1", "secret", "First1", "Last1",
-                        Map.of("attribute1", List.of("value1_1")), true),
-                new WordpressUser("2", "user2", "secret", "First2", "Last2",
-                        Map.of("attribute1", List.of("value1_2")), true),
-                new WordpressUser("3", "user3", "secret", "First3", "Last3",
-                        Map.of("attribute1", List.of("value1_3")), true),
-                new WordpressUser("4", "user4", "secret", "First4", "Last4",
-                        Map.of("attribute1", List.of("value1_4")), false)
-        );
-
-        userRoles = Map.ofEntries(
-                // global user roles
-                Map.entry("1", Set.of(wp_ADMIN_ROLE, wp_USER_ROLE)),
-                Map.entry("2", Set.of(wp_ADMIN_ROLE, wp_USER_ROLE)),
-                Map.entry("3", Set.of(wp_USER_ROLE)),
-                Map.entry("4", Set.of(wp_USER_ROLE))
-        );
+    private  List<WpClientProvider> remoteRestClients;
+    
+    public WordpressUserRepository(List<WpClientProvider> restClients) {
+        this.wpUsers               = Collections.<WordpressUser>emptyList();
+        this.userRoles             = Collections.<String, Set<WordpressRole>>emptyMap();
+        this.remoteRestClients     = restClients;
+        
+        ResteasyProviderFactory.getInstance().registerProvider(RestExceptionMapper.class);
+        collectAllUsersFromRemote();
     }
 
-    
+    public void collectAllUsersFromRemote() {
+        for (WpClientProvider client: this.remoteRestClients) {
+            log.infov("@mb collectAllUsersFromRemote token: {0}",client.getAccessToken());
+        }
+    }
+
     /** 
      * @return List<WordpressUser>
      */
     public List<WordpressUser> getAllUsers() {
+        this.collectAllUsersFromRemote();
         return wpUsers;
     }
 
@@ -65,6 +68,8 @@ class WordpressUserRepository {
      * @return WordpressUser
      */
     public WordpressUser findUserById(String id) {
+        this.collectAllUsersFromRemote();
+
         return wpUsers.stream().filter(wpUser -> wpUser.getId().equals(id)).findFirst().orElse(null);
     }
 
@@ -74,6 +79,8 @@ class WordpressUserRepository {
      * @return WordpressUser
      */
     public WordpressUser findUserByUsernameOrEmail(String username) {
+        this.collectAllUsersFromRemote();
+
         return wpUsers.stream()
                 .filter(wpUser -> wpUser.getUsername().equalsIgnoreCase(username) || wpUser.getEmail().equalsIgnoreCase(username))
                 .findFirst().orElse(null);
@@ -87,6 +94,8 @@ class WordpressUserRepository {
      * @return List<WordpressUser>
      */
     public List<WordpressUser> findUsers(String query, int firstResult, int maxResult) {
+        this.collectAllUsersFromRemote();
+
         return paginated(wpUsers.stream()
                 .filter(wpUser -> wpUser.getUsername().contains(query)
                         || wpUser.getEmail().contains(query)

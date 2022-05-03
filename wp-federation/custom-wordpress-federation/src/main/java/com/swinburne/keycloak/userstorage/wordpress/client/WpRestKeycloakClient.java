@@ -3,6 +3,7 @@ package com.swinburne.keycloak.userstorage.wordpress.client;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.jose.jwk.JSONWebKeySet;
 
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -23,9 +24,8 @@ public interface WpRestKeycloakClient {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-
     @Path("/wp-json/jwt-auth/v1/token")
-    AccessTokenResponse getToken(AccessTokenRequest request);
+    AccessTokenResponse getToken(AccessTokenRequest request) throws ClientErrorException;
 
 
     // @POST

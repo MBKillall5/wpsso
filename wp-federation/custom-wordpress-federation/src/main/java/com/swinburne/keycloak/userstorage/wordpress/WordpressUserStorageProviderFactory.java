@@ -2,10 +2,12 @@ package com.swinburne.keycloak.userstorage.wordpress;
 
 import com.google.auto.service.AutoService;
 import com.swinburne.keycloak.userstorage.wordpress.client.WpClientProvider;
+import com.swinburne.keycloak.userstorage.wordpress.client.WpRestKeycloakClient;
 
 import lombok.extern.jbosslog.JBossLog;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.Config;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.component.ComponentValidationException;
@@ -18,6 +20,8 @@ import org.keycloak.storage.UserStorageProviderFactory;
 
 import javax.ws.rs.client.ClientBuilder;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -26,8 +30,10 @@ import java.util.concurrent.ConcurrentMap;
 @AutoService(UserStorageProviderFactory.class)
 public class WordpressUserStorageProviderFactory implements UserStorageProviderFactory<WordpressUserStorageProvider> {
 
-    private final WordpressUserRepository repository;
+    private WordpressUserRepository repository;
+    private ArrayList<WpClientProvider> restClients = new ArrayList<>();
 
+    //@todo second node
 
     /** 
      * @param config
@@ -35,8 +41,7 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
     @Override
     public void init(Config.Scope config) {
 
-        // String someProperty = config.get("wpRestEndpoint");
-        // log.infov("Configured {0} with someProperty: {1}", this, someProperty);
+
     }
 
     
@@ -44,8 +49,9 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
      * @param factory
      */
     @Override
-    public void postInit(KeycloakSessionFactory factory) {
-        //repository = new WordpressUserRepository();
+    public void postInit(KeycloakSessionFactory factory) {    
+        log.infov("@mb postInit");
+        repository = new WordpressUserRepository(restClients);
     }
 
     
@@ -60,8 +66,15 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
 
         log.infov("CreateProvider {0}", getId());
 
-        //return new WordpressUserStorageProvider(session, model, repository);
-        return new WordpressUserStorageProvider(session, model, repository, this::createRestEasyClient);
+        String wpRestEndpoint1  = model.get("wpRestEndpoint1");
+        String wpAdminUsername1 = model.get("wpAdminUsernameNode1");
+        String wpAdminPassword1 = model.get("wpAdminPasswordNode1");
+
+
+        WpClientProvider wpClientProvider1 = new WpClientProvider(model, wpRestEndpoint1, wpAdminUsername1, wpAdminPassword1, this::createRestEasyClient);
+        restClients.add(wpClientProvider1);
+
+        return new WordpressUserStorageProvider(session, model, repository);
     }
 
     
@@ -102,11 +115,11 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
         // this configuration is configurable in the admin-console
         return ProviderConfigurationBuilder.create()
                 .property()
-                .name("wpRestEndpoint")
+                .name("wpRestEndpoint1")
                 .label("WP REST URL (node-1)")
                 .helpText("The REST endpoint url (node-1)")
                 .type(ProviderConfigProperty.STRING_TYPE)
-                .defaultValue("http://192.168.56.152/wp/")
+                .defaultValue("http://192.168.56.125")
                 .add()
                 //admin username
                 .property()
@@ -122,7 +135,7 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
                 .label("WP Admin Password (node-1)")
                 .helpText("The WP Admin password (node-1)")
                 .type(ProviderConfigProperty.PASSWORD)
-                .defaultValue("admin")
+                .defaultValue("admin123")
                 .add()
                 .property().name("enableNode1")
                 .label("Enable (node-1)")
@@ -135,12 +148,12 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
 
 
 protected ResteasyClient createRestEasyClient(ComponentModel componentModel) {
-    ResteasyClient client = (ResteasyClient)(ClientBuilder.newBuilder())
-            //.connectionPoolSize(128) // allow multiple concurrent connections.
-            //.keyStore()
-            //
-            .build();
+    ResteasyClient client = new ResteasyClientBuilder() //
+    .connectionPoolSize(128) // allow multiple concurrent connections.
+    //.keyStore()
+    //
+    .build();
 
     return client;
-}
+    }
 }
