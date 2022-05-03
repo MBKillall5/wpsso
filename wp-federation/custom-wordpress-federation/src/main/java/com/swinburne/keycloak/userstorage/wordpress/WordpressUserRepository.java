@@ -3,6 +3,8 @@ package com.swinburne.keycloak.userstorage.wordpress;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,6 +20,8 @@ class WordpressUserRepository {
 
     private final Map<String, Set<WordpressRole>> userRoles;
 
+    private final ConcurrentMap<String, WordpressUserRepository> remoteKeycloakClientCache = new ConcurrentHashMap<>();
+    
     public WordpressUserRepository() {
         wpUsers = List.of(
                 new WordpressUser("1", "user1", "secret", "First1", "Last1",

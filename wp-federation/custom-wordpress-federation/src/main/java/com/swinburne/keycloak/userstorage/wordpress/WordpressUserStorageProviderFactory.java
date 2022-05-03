@@ -1,8 +1,11 @@
 package com.swinburne.keycloak.userstorage.wordpress;
 
 import com.google.auto.service.AutoService;
+import com.swinburne.keycloak.userstorage.wordpress.client.WpClientProvider;
 
 import lombok.extern.jbosslog.JBossLog;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.keycloak.Config;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.component.ComponentValidationException;
@@ -13,15 +16,19 @@ import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.storage.UserStorageProviderFactory;
 
+import javax.ws.rs.client.ClientBuilder;
+
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @JBossLog
 @AutoService(UserStorageProviderFactory.class)
 public class WordpressUserStorageProviderFactory implements UserStorageProviderFactory<WordpressUserStorageProvider> {
 
-    WordpressUserRepository repository;
+    private final WordpressUserRepository repository;
 
-    
+
     /** 
      * @param config
      */
@@ -38,7 +45,7 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
      */
     @Override
     public void postInit(KeycloakSessionFactory factory) {
-        repository = new WordpressUserRepository();
+        //repository = new WordpressUserRepository();
     }
 
     
@@ -53,7 +60,8 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
 
         log.infov("CreateProvider {0}", getId());
 
-        return new WordpressUserStorageProvider(session, model, repository);
+        //return new WordpressUserStorageProvider(session, model, repository);
+        return new WordpressUserStorageProvider(session, model, repository, this::createRestEasyClient);
     }
 
     
@@ -124,4 +132,15 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
                 .add()
                 .build();
     }
+
+
+protected ResteasyClient createRestEasyClient(ComponentModel componentModel) {
+    ResteasyClient client = (ResteasyClient)(ClientBuilder.newBuilder())
+            //.connectionPoolSize(128) // allow multiple concurrent connections.
+            //.keyStore()
+            //
+            .build();
+
+    return client;
+}
 }

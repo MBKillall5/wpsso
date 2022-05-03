@@ -33,6 +33,7 @@
         <assertj-core.version>3.22.0</assertj-core.version>
         <junit-jupiter.version>5.8.2</junit-jupiter.version>
         <undertow-servlet.version>2.2.14.Final</undertow-servlet.version>
+        <resteasy-client.version>6.0.1.Final</resteasy-client.version>
     </properties>
 
     <dependencyManagement>

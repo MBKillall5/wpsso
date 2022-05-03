@@ -23,11 +23,19 @@ import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
 
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.swinburne.keycloak.userstorage.wordpress.client.WpRestKeycloakClient;
+import com.swinburne.keycloak.userstorage.wordpress.client.WpClientProvider;
+
 
 /**
  * Note that this custom UserStorageProvider does NOT support caching!
@@ -54,11 +62,20 @@ public class WordpressUserStorageProvider implements
     private final KeycloakSession session;
     private final ComponentModel storageComponentModel;
     private final WordpressUserRepository repository;
+    
+    private final ConcurrentMap<String, WordpressUserRepository> remoteKeycloakProviderCache;
+    private final Function<ComponentModel, ResteasyClient> clientFactory;
 
-    public WordpressUserStorageProvider(KeycloakSession session, ComponentModel storageComponentModel, WordpressUserRepository repository) {
+    public WordpressUserStorageProvider(KeycloakSession session,
+            ComponentModel storageComponentModel,
+            ConcurrentMap<String, WordpressUserRepository> remoteKeycloakProviderCache,
+            Function<ComponentModel, ResteasyClient> clientFactory,
+            WordpressUserRepository repository) {
+
         this.session = session;
         this.storageComponentModel = storageComponentModel;
-        this.repository = repository;
+        this.remoteKeycloakProviderCache = remoteKeycloakProviderCache;
+        this.clientFactory = clientFactory;
     }
 
     
@@ -559,4 +576,27 @@ public class WordpressUserStorageProvider implements
         // this is not supported
         return false;
     }
+
+    /**
+     * Gets the RemoteKeycloakClient
+     * @mb
+     * return RemoteKeycloakClientProvider
+     */
+    protected WpClientProvider getRemoteKeycloakProvider() {
+        return remoteKeycloakProviderCache.computeIfAbsent(storageComponentModel.getId(), storageProviderId -> createKeycloakFacadeProvider(clientFactory));
+    }
+
+    protected WpClientProvider createKeycloakFacadeProvider(Function<ComponentModel, ResteasyClient> clientFactory) {
+        return new WpClientProvider(storageComponentModel, clientFactory);
+    }
+    
+    /**
+     * Gets the RemoteKeycloakClient
+     * @mb
+     * return RemoteKeycloakClient
+     */
+    private WpRestKeycloakClient getRemoteKeycloak() {
+        return getRemoteKeycloakProvider().getRemoteKeycloakClient();
+    }
+
 }
