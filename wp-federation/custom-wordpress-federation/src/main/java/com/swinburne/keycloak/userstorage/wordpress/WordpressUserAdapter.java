@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.swinburne.keycloak.userstorage.wordpress.client.pojo.WordpressUser;
+
 public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
 
     private final WordpressUser wpUser;

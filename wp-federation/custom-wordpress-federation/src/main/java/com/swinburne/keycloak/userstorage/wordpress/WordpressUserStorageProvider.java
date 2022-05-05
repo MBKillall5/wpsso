@@ -34,6 +34,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.swinburne.keycloak.userstorage.wordpress.client.WpRestKeycloakClient;
+import com.swinburne.keycloak.userstorage.wordpress.client.pojo.WordpressUser;
 import com.swinburne.keycloak.userstorage.wordpress.client.WpClientProvider;
 
 
@@ -326,14 +327,14 @@ public class WordpressUserStorageProvider implements
 
         log.infov("search for users: realm={0} search={1} firstResult={2} maxResults={3}", realm.getId(), search, firstResult, maxResults);
 
-        if (search.contains(":")) {
-            String attributeName = search.substring(0, search.indexOf(":"));
-            String attributeValue = search.substring(search.indexOf(":") + 1);
+        // if (search.contains(":")) {
+        //     String attributeName = search.substring(0, search.indexOf(":"));
+        //     String attributeValue = search.substring(search.indexOf(":") + 1);
 
-            return repository.findUsersByAttribute(attributeName, attributeValue, firstResult, maxResults).stream()
-                    .map(id -> new WordpressUserAdapter(session, realm, storageComponentModel, repository.findUserById(id)))
-                    .collect(Collectors.toList());
-        }
+        //     return repository.findUsersByAttribute(attributeName, attributeValue, firstResult, maxResults).stream()
+        //             .map(id -> new WordpressUserAdapter(session, realm, storageComponentModel, repository.findUserById(id)))
+        //             .collect(Collectors.toList());
+        // }
 
         return repository.findUsers(search, firstResult, maxResults).stream()
                 .map(wpUser -> new WordpressUserAdapter(session, realm, storageComponentModel, wpUser))
@@ -398,7 +399,7 @@ public class WordpressUserStorageProvider implements
     public List<UserModel> getGroupMembers(RealmModel realm, GroupModel group, int firstResult, int maxResults) {
 
         log.infov("search for group members with params: realm={0} groupId={1} firstResult={2} maxResults={3}", realm.getId(), group.getId(), firstResult, maxResults);
-
+        log.warnv("@not implemented!");
         return Collections.emptyList();
     }
 
@@ -413,10 +414,8 @@ public class WordpressUserStorageProvider implements
     public List<UserModel> searchForUserByUserAttribute(String attrName, String attrValue, RealmModel realm) {
 
         log.infov("search for user by attribute: realm={0} attrName={1} attrValue={2}", realm.getId(), attrName, attrValue);
-
-        return repository.findUsersByAttribute(attrName, attrValue, 0, -1).stream()
-                .map(id -> new WordpressUserAdapter(session, realm, storageComponentModel, repository.findUserById(id)))
-                .collect(Collectors.toList());
+        log.warnv("@not implemented!");
+        return Collections.emptyList();
     }
 
     
@@ -429,6 +428,7 @@ public class WordpressUserStorageProvider implements
     @Override
     public void grantRole(RealmModel realm, String userId, RoleModel role) {
         log.infov("grant role mapping: realm={0} userId={1} role={2}", realm.getId(), userId, role.getName());
+        log.warnv("@not implemented!");
     }
 
     
@@ -541,8 +541,10 @@ public class WordpressUserStorageProvider implements
     public List<String> getUsersByUserAttribute(RealmModel realm, String name, String value) {
 
         log.infov("get users by user attribute: realm={0} name={1} value={2}", realm.getId(), value);
+        log.warnv("@mb not implemented!");
+        return Collections.emptyList();
 
-        return repository.findUsersByAttribute(name, value, 0, -1);
+        //return repository.findUsersByAttribute(name, value, 0, -1);
     }
 
 

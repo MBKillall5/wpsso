@@ -5,6 +5,7 @@ import org.keycloak.jose.jwk.JSONWebKeySet;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.swinburne.keycloak.userstorage.wordpress.client.pojo.AccessTokenRequest;
 import com.swinburne.keycloak.userstorage.wordpress.client.pojo.AccessTokenResponse;
+import com.swinburne.keycloak.userstorage.wordpress.client.pojo.WordpressUser;
 
 import java.util.List;
 
@@ -28,18 +30,14 @@ public interface WpRestKeycloakClient {
     AccessTokenResponse getToken(AccessTokenRequest request) throws ClientErrorException;
 
 
-    // @POST
-    // @Produces(MediaType.APPLICATION_FORM_URLENCODED)
-    // @Consumes(MediaType.APPLICATION_JSON)
-    // @Path("/realms/{realm}/protocol/openid-connect/token")
-    // AccessTokenResponse validatePassword(@PathParam("realm") String realm, //
-    //                                      @FormParam(OAuth2Constants.CLIENT_ID) String clientId, //
-    //                                      @FormParam(OAuth2Constants.CLIENT_SECRET) String clientSecret, //
-    //                                      @FormParam(OAuth2Constants.USERNAME) String username, //
-    //                                      @FormParam(OAuth2Constants.PASSWORD) String password, //
-    //                                      @FormParam(OAuth2Constants.GRANT_TYPE) String grantType, //
-    //                                      @FormParam(OAuth2Constants.SCOPE) String scope //
-    // );
+    @GET
+    @Produces(MediaType.APPLICATION_FORM_URLENCODED)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/wp-json/wp/v2/users")
+    List<WordpressUser> searchUsers(
+                                  @QueryParam("search") String search,
+                                  @DefaultValue("edit") @QueryParam("context") String context );
+
 
     // @GET
     // @Consumes(MediaType.APPLICATION_JSON)

@@ -1,5 +1,6 @@
 package com.swinburne.keycloak.userstorage.wordpress;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 import com.swinburne.keycloak.userstorage.wordpress.client.RestExceptionMapper;
 import com.swinburne.keycloak.userstorage.wordpress.client.WpClientProvider;
 import com.swinburne.keycloak.userstorage.wordpress.client.WpRestKeycloakClient;
+import com.swinburne.keycloak.userstorage.wordpress.client.pojo.WordpressUser;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
@@ -37,20 +39,13 @@ import lombok.extern.jbosslog.JBossLog;
         this.remoteRestClients     = restClients;
         
         ResteasyProviderFactory.getInstance().registerProvider(RestExceptionMapper.class);
-        collectAllUsersFromRemote();
-    }
-
-    public void collectAllUsersFromRemote() {
-        for (WpClientProvider client: this.remoteRestClients) {
-            log.infov("@mb collectAllUsersFromRemote token: {0}",client.getAccessToken());
-        }
     }
 
     /** 
      * @return List<WordpressUser>
      */
-    public List<WordpressUser> getAllUsers() {
-        this.collectAllUsersFromRemote();
+    public List<WordpressUser> getAllUsers() {    
+        log.infof("getAllUsers");    
         return wpUsers;
     }
 
@@ -68,8 +63,7 @@ import lombok.extern.jbosslog.JBossLog;
      * @return WordpressUser
      */
     public WordpressUser findUserById(String id) {
-        this.collectAllUsersFromRemote();
-
+        log.infof("findUserById {0}", id);
         return wpUsers.stream().filter(wpUser -> wpUser.getId().equals(id)).findFirst().orElse(null);
     }
 
@@ -79,8 +73,7 @@ import lombok.extern.jbosslog.JBossLog;
      * @return WordpressUser
      */
     public WordpressUser findUserByUsernameOrEmail(String username) {
-        this.collectAllUsersFromRemote();
-
+        log.infof("findUserByUsernameOrEmail {0}", username);
         return wpUsers.stream()
                 .filter(wpUser -> wpUser.getUsername().equalsIgnoreCase(username) || wpUser.getEmail().equalsIgnoreCase(username))
                 .findFirst().orElse(null);
@@ -94,14 +87,20 @@ import lombok.extern.jbosslog.JBossLog;
      * @return List<WordpressUser>
      */
     public List<WordpressUser> findUsers(String query, int firstResult, int maxResult) {
-        this.collectAllUsersFromRemote();
 
-        return paginated(wpUsers.stream()
-                .filter(wpUser -> wpUser.getUsername().contains(query)
-                        || wpUser.getEmail().contains(query)
-                        || wpUser.getFirstName().contains(query)
-                        || wpUser.getLastName().contains(query)), firstResult, maxResult)
-                .collect(Collectors.toList());
+        log.infof("findUsers {0}", query);
+
+        ArrayList<WordpressUser> users = new ArrayList<WordpressUser>();
+        for (WpClientProvider c: this.remoteRestClients ) {
+            if (c.getAccessToken() != null) {
+                List<WordpressUser> rusers = c.getRemoteKeycloakClient().searchUsers(query,"edit");
+                log.infov("remote users retrieved: {0}", rusers);
+                users.addAll(rusers);
+            }
+        }
+
+        return users;
+
     }
 
     
@@ -111,6 +110,7 @@ import lombok.extern.jbosslog.JBossLog;
      * @return boolean
      */
     public boolean validateCredentials(String username, String password) {
+        log.infof("validateCredentials {0}", username);
         WordpressUser user = findUserByUsernameOrEmail(username);
         return user.getPassword().equals(password);
     }
@@ -158,19 +158,19 @@ import lombok.extern.jbosslog.JBossLog;
     }
 
     
-    /** 
-     * @param name
-     * @param value
-     * @param firstResult
-     * @param maxResult
-     * @return List<String>
-     */
-    public List<String> findUsersByAttribute(String name, String value, int firstResult, int maxResult) {
-        return paginated(wpUsers.stream()
-                .filter(u -> u.getAttribute(name).contains(value))
-                .map(WordpressUser::getId), firstResult, maxResult)
-                .collect(Collectors.toList());
-    }
+    // /** 
+    //  * @param name
+    //  * @param value
+    //  * @param firstResult
+    //  * @param maxResult
+    //  * @return List<String>
+    //  */
+    // public List<String> findUsersByAttribute(String name, String value, int firstResult, int maxResult) {
+    //     return paginated(wpUsers.stream()
+    //             .filter(u -> u.getAttribute(name).contains(value))
+    //             .map(WordpressUser::getId), firstResult, maxResult)
+    //             .collect(Collectors.toList());
+    // }
 
     
     /** 
