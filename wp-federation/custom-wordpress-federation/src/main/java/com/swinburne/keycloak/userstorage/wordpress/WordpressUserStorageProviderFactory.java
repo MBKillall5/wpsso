@@ -66,6 +66,8 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
 
         log.infov("CreateProvider {0}", getId());
 
+        restClients.clear();
+        
         String wpRestEndpoint1  = model.get("wpRestEndpoint1");
         String wpAdminUsername1 = model.get("wpAdminUsernameNode1");
         String wpAdminPassword1 = model.get("wpAdminPasswordNode1");

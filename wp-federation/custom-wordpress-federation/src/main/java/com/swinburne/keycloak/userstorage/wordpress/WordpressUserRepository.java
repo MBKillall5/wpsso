@@ -2,6 +2,7 @@ package com.swinburne.keycloak.userstorage.wordpress;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,8 @@ import java.util.stream.Stream;
 import com.swinburne.keycloak.userstorage.wordpress.client.RestExceptionMapper;
 import com.swinburne.keycloak.userstorage.wordpress.client.WpClientProvider;
 import com.swinburne.keycloak.userstorage.wordpress.client.WpRestKeycloakClient;
+import com.swinburne.keycloak.userstorage.wordpress.client.pojo.AccessTokenRequest;
+import com.swinburne.keycloak.userstorage.wordpress.client.pojo.AccessTokenResponse;
 import com.swinburne.keycloak.userstorage.wordpress.client.pojo.WordpressUser;
 
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
@@ -24,9 +27,6 @@ import lombok.extern.jbosslog.JBossLog;
  */
 @JBossLog
  class WordpressUserRepository {
-
-    //public static final WordpressRole wp_ADMIN_ROLE = new WordpressRole("1", "wp-admin", "wp Admin Role");
-    //public static final WordpressRole wp_USER_ROLE = new WordpressRole("2", "wp-user", "wp User Role");
 
     private  List<WordpressUser> wpUsers;
     private  Map<String, Set<WordpressRole>> userRoles;
@@ -63,8 +63,28 @@ import lombok.extern.jbosslog.JBossLog;
      * @return WordpressUser
      */
     public WordpressUser findUserById(String id) {
-        log.infof("findUserById {0}", id);
-        return wpUsers.stream().filter(wpUser -> wpUser.getId().equals(id)).findFirst().orElse(null);
+        log.infov("findUserById {0}", id);
+
+        try {
+            int instance_id = 0; //only one 
+            
+            String user_id = id;
+            WpClientProvider c = this.remoteRestClients.get(instance_id);
+
+            if (c == null) {
+                log.warnf("cannot find WpClientProvider!");
+                return null;
+            }
+            if (c.getAccessToken() == null)
+                return null;
+                
+            WordpressUser user = c.getRemoteKeycloakClient().getUserById(user_id,"edit");
+            return user;        
+        } catch (Exception e) {
+            log.warnv("{0}",e);
+        }
+
+        return null;        
     }
 
     
@@ -73,8 +93,8 @@ import lombok.extern.jbosslog.JBossLog;
      * @return WordpressUser
      */
     public WordpressUser findUserByUsernameOrEmail(String username) {
-        log.infof("findUserByUsernameOrEmail {0}", username);
-        return wpUsers.stream()
+        log.infov("findUserByUsernameOrEmail {0}", username);
+        return findUsers(username,0,-1).stream()
                 .filter(wpUser -> wpUser.getUsername().equalsIgnoreCase(username) || wpUser.getEmail().equalsIgnoreCase(username))
                 .findFirst().orElse(null);
     }
@@ -91,16 +111,18 @@ import lombok.extern.jbosslog.JBossLog;
         log.infof("findUsers {0}", query);
 
         ArrayList<WordpressUser> users = new ArrayList<WordpressUser>();
+
+        int instance_id = 0;
         for (WpClientProvider c: this.remoteRestClients ) {
             if (c.getAccessToken() != null) {
                 List<WordpressUser> rusers = c.getRemoteKeycloakClient().searchUsers(query,"edit");
                 log.infov("remote users retrieved: {0}", rusers);
                 users.addAll(rusers);
+                instance_id++;
             }
         }
 
         return users;
-
     }
 
     
@@ -112,7 +134,20 @@ import lombok.extern.jbosslog.JBossLog;
     public boolean validateCredentials(String username, String password) {
         log.infof("validateCredentials {0}", username);
         WordpressUser user = findUserByUsernameOrEmail(username);
-        return user.getPassword().equals(password);
+
+        for (WpClientProvider c: this.remoteRestClients ) {
+            try{
+                AccessTokenResponse rs = c.getRemoteKeycloakClient().getToken(new AccessTokenRequest(username, password));
+                if (rs.getData().getToken() != null) {
+                    log.infov("user {0} password validated", username);
+                    return true;
+                }
+
+            } catch (Exception ex) {}
+        }
+
+        log.infov("user {0} password NOT validated", username);
+        return false;
     }
 
     
@@ -132,6 +167,7 @@ import lombok.extern.jbosslog.JBossLog;
      * @return Set<WordpressRole>
      */
     public Set<WordpressRole> getRoles(String username) {
+        log.infof("getRoles {0}", username);
 
         WordpressUser user = findUserByUsernameOrEmail(username);
         return getGlobalRolesByUserId(user.getId());
@@ -144,7 +180,9 @@ import lombok.extern.jbosslog.JBossLog;
      * @return Set<WordpressRole>
      */
     public Set<WordpressRole> getGlobalRolesByUserId(String userId) {
-        return userRoles.get(userId);
+        log.infof("getGlobalRolesByUserId {0}", userId);
+        WordpressUser user = findUserById(userId);
+        return user.getRolesAsWordpressRole();
     }
 
     

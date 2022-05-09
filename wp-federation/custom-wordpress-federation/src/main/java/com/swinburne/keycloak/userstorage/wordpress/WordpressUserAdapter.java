@@ -10,6 +10,10 @@ import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 import org.keycloak.storage.federated.UserFederatedStorageProvider;
 
+import lombok.extern.jbosslog.JBossLog;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +21,7 @@ import java.util.Set;
 
 import com.swinburne.keycloak.userstorage.wordpress.client.pojo.WordpressUser;
 
+@JBossLog
 public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
 
     private final WordpressUser wpUser;
@@ -135,7 +140,16 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
      */
     @Override
     public Long getCreatedTimestamp() {
-        return wpUser.getCreatedTimestamp();
+        String registered_date = wpUser.getRegistered_date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'+'HH:mm");
+        long time = 0;
+        try {
+            Date ts = sdf.parse(registered_date);
+            time = ts.getTime();
+        } catch (Exception ex) {
+            log.warnv("Unable to convert date! {0}",ex);
+        }
+        return time;
     }
 
     
@@ -182,7 +196,7 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
      */
     @Override
     public void setEnabled(boolean enabled) {
-        // super.setEnabled(enabled);
+         super.setEnabled(enabled);
     }
 
     
@@ -202,7 +216,7 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
      */
     @Override
     public void setAttribute(String name, List<String> values) {
-//        super.setAttribute(name, values);
+        super.setAttribute(name, values);
         // NOOP
     }
 
@@ -213,7 +227,7 @@ public class WordpressUserAdapter extends AbstractUserAdapterFederatedStorage {
      */
     @Override
     public void setSingleAttribute(String name, String value) {
-//        super.setSingleAttribute(name, value);
+        super.setSingleAttribute(name, value);
         // NOOP
     }
 

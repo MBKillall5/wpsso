@@ -39,14 +39,12 @@ public interface WpRestKeycloakClient {
                                   @DefaultValue("edit") @QueryParam("context") String context );
 
 
-    // @GET
-    // @Consumes(MediaType.APPLICATION_JSON)
-    // // /users?briefRepresentation=true&first=0&max=20
-    // @Path("/admin/realms/{realm}/users")
-    // List<UserRepresentation> getUserByUsername(@PathParam("realm") String realm, //
-    //                                            @QueryParam("username") String username, //
-    //                                            @QueryParam("briefRepresentation") boolean briefRepresentation //
-    // );
+     @GET
+     @Consumes(MediaType.APPLICATION_JSON)
+     @Path("/wp-json/wp/v2/users/{id}")
+     WordpressUser getUserById(@PathParam("id") String id, //
+                               @DefaultValue("edit") @QueryParam("context") String context);
+                                           
 
     // @GET
     // @Consumes(MediaType.APPLICATION_JSON)

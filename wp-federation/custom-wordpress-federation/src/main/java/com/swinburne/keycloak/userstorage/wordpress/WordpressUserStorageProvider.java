@@ -48,10 +48,7 @@ public class WordpressUserStorageProvider implements
         , UserLookupProvider
         , UserQueryProvider
 
-        , UserRegistrationProvider
-
         , UserAttributeFederatedStorage
-
         , CredentialInputUpdater
         , CredentialInputValidator
 
@@ -114,8 +111,6 @@ public class WordpressUserStorageProvider implements
 
         UserCredentialModel cred = (UserCredentialModel) input;
         return repository.validateCredentials(user.getUsername(), cred.getValue());
-
-        //@mb here we can store the new credential
     }
 
     
@@ -550,28 +545,5 @@ public class WordpressUserStorageProvider implements
 
 
 
-    @Override
-    public UserModel addUser(RealmModel realm, String username) {
-
-        log.infov("add user: realm={0} username={1}", realm.getId(), username);
-
-        // this is not supported
-        return null;
-    }
-
-    
-    /** 
-     * @param realm
-     * @param user
-     * @return boolean
-     */
-    @Override
-    public boolean removeUser(RealmModel realm, UserModel user) {
-
-        log.infov("remove user: realm={0} username={1}", realm.getId(), user.getUsername());
-
-        // this is not supported
-        return false;
-    }
     
 }
