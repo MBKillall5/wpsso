@@ -45,6 +45,14 @@ public class WpClientProvider  {
         this.remoteKeycloakClient = createRestWpClient(clientFactory.apply(componentModel));
     }
 
+    public String getAuthServerUrl() {
+        return authServerUrl;
+    }
+
+    public String toString() {
+        return String.format("authServerUrl: %s, adminUsername: %s, adminPassword: %s", this.authServerUrl, this.adminUsername, this.adminPassword);
+    }
+
     private WpRestKeycloakClient createRestWpClient(ResteasyClient client) {
         ResteasyWebTarget webTarget = client.target(UriBuilder.fromPath(this.authServerUrl));
         webTarget.register(new AccessTokenInterceptor(this::getAccessToken));
