@@ -174,12 +174,12 @@ public class WordpressUserStorageProviderFactory implements UserStorageProviderF
 
 
 protected ResteasyClient createRestEasyClient(ComponentModel componentModel) {
-    ResteasyClient client = new ResteasyClientBuilder() //
-    .connectionPoolSize(128) // allow multiple concurrent connections.
-    //.keyStore()
-    //
-    .build();
-
+    // ResteasyClient client = new ResteasyClientBuilder() //
+    // .connectionPoolSize(128) // allow multiple concurrent connections.
+    // //.keyStore()
+    // //
+    // .build();
+    ResteasyClient client = (ResteasyClient)ClientBuilder.newBuilder().build();
     return client;
     }
 }

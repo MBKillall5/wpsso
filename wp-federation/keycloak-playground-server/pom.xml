@@ -28,10 +28,10 @@
 
         <!-- add new extension here -->
 
-        <dependency>
+        <!-- <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>org.jboss.spec.javax.servlet</groupId>
